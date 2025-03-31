@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "261529011890",
+    "project_id": "projeto-aula-2781c",
+    "storage_bucket": "projeto-aula-2781c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261529011890:android:ad3a617636b7d6e2422bab",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSuaeeuYl-ZG0DFmSZZ0pfBUgAtQhw0N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261529011890:android:40b0b536f62bc614422bab",
+        "android_client_info": {
+          "package_name": "com.exemple.projetoaula"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSuaeeuYl-ZG0DFmSZZ0pfBUgAtQhw0N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
