@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import com.example.firebase.ui.theme.FirebaseTheme
 import kotlinx.coroutines.launch
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -138,11 +137,9 @@ fun RegistrationScreen() {
                 db.collection("users")
                     .add(user)
                     .addOnSuccessListener { documentReference ->
-                        Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
                         showToast(context, "Dados cadastrados com sucesso!")
                     }
                     .addOnFailureListener { e ->
-                        Log.w(TAG, "Error adding document", e)
                         showToast(context, "Erro ao cadastrar. Tente novamente.")
                     }
 
@@ -211,10 +208,6 @@ fun CriaInput(label: String, valor: String, onValueChange: (String) -> Unit, mod
         modifier = modifier.fillMaxWidth(),
         singleLine = true
     )
-}
-
-fun DocumentSnapshot.toUser(): Map<String, String> {
-    return data?.mapValues { it.value.toString() } ?: emptyMap()
 }
 
 @Preview(
