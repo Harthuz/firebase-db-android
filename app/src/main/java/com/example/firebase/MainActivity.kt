@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.unit.sp
@@ -43,6 +47,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.shape.RoundedCornerShape
 class MainActivity : ComponentActivity() {
 
 
@@ -65,14 +70,17 @@ fun RegistrationScreen() {
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    var nome by rememberSaveable { mutableStateOf("") }
 
+    var nome by rememberSaveable { mutableStateOf("") }
     var endereco by rememberSaveable { mutableStateOf("") }
     var bairro by rememberSaveable { mutableStateOf("") }
     var cep by rememberSaveable { mutableStateOf("") }
     var cidade by rememberSaveable { mutableStateOf("") }
     var estado by rememberSaveable { mutableStateOf("") }
+
     val coroutineScope = rememberCoroutineScope()
+    var showUserData by remember { mutableStateOf(false) }
+    var allUsersData by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
 
     var dadosCadastrados by remember { mutableStateOf<Map<String, String>?>(null) }
 
@@ -137,17 +145,17 @@ fun RegistrationScreen() {
                 db.collection("users")
                     .add(user)
                     .addOnSuccessListener { documentReference ->
-                        showToast(context, "Dados cadastrados com sucesso!")
+                        showToast(context, "Cadastro realizado com sucesso!")
+                        Log.d(TAG, "Dados cadastrados com sucesso!")
                     }
                     .addOnFailureListener { e ->
-                        showToast(context, "Erro ao cadastrar. Tente novamente.")
+                        Log.w(TAG, "Erro ao cadastrar dados", e)
                     }
 
                 dadosCadastrados = user.mapValues { it.value.toString() }
 
                 coroutineScope.launch {
                     nome = ""
-
                     endereco = ""
                     bairro = ""
                     cep = ""
@@ -178,18 +186,54 @@ fun RegistrationScreen() {
             }
         }
 
-        dadosCadastrados?.let { data ->
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "Dados Cadastrados:", fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(10.dp))
-            data.forEach { (key, value) ->
-                Text(text = "$key: $value", fontSize = 16.sp)
-            }
-
+        Row {
+            Spacer(modifier = Modifier.width(20.dp))
             Button(onClick = {
-                dadosCadastrados = null
+                if (showUserData) {
+                    showUserData = false
+                } else {
+                    val db = Firebase.firestore
+                    db.collection("users")
+                        .get()
+                        .addOnSuccessListener { result ->
+                            allUsersData = result.map { document -> document.data }
+                            showUserData = true
+                            Log.d(TAG, "Dados de todos os usuários obtidos com sucesso!")
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.w(TAG, "Erro ao obter dados dos usuários.", exception)
+                            showToast(context, "Erro ao buscar usuários.")
+                        }
+                }
             }) {
-                Text("Fechar")
+                Text(if (showUserData) "Fechar Lista" else "Listar Usuários")
+            }
+        }
+
+        if (showUserData) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                allUsersData.forEach { userData ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(Color.LightGray.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp))
+                            .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                    ) {
+                        Text("Nome: ${userData["nome"]}")
+                        Text("Endereço: ${userData["endereco"]}")
+                        Text("Bairro: ${userData["bairro"]}")
+                        Text("CEP: ${userData["cep"]}")
+                        Text("Cidade: ${userData["cidade"]}")
+                        Text("Estado: ${userData["estado"]}")
+                    }
+                }
             }
         }
     }
